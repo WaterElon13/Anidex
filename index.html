@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animal Pokedex</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #e0f0ff;
+      color: #003366;
+    }
+    header {
+      background-color: #004a99;
+      color: white;
+      padding: 1em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .menu {
+      font-size: 1.5em;
+      cursor: pointer;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100%;
+      background: #003366;
+      color: white;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      padding: 1em;
+      z-index: 10;
+    }
+    .sidebar.show {
+      transform: translateX(0);
+    }
+    .filters {
+      margin-top: 2em;
+    }
+    .filters select, .filters button {
+      width: 100%;
+      padding: 0.5em;
+      font-size: 1em;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 1em;
+      cursor: pointer;
+      background-color: #007acc;
+      color: white;
+      transition: background-color 0.3s;
+    }
+    .filters button:hover {
+      background-color: #005fa3;
+    }
+    .close-sidebar {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2em;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+    .region-block {
+      padding: 1em;
+      margin-left: 0;
+    }
+    .region-title {
+      font-size: 1.5em;
+      margin: 0.5em 0;
+      border-bottom: 2px solid #007acc;
+      padding-bottom: 0.3em;
+    }
+    .progress {
+      margin: 0.5em 0;
+      font-size: 0.9em;
+    }
+    .progress-bar {
+      background: #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 20px;
+      margin-bottom: 1em;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      background: #00ccff;
+      width: 0%;
+      transition: width 0.4s ease-in-out;
+    }
+    .container {
+      padding-left: 0;
+      padding-right: 1em;
+      padding-top: 1em;
+    }
+    .card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1em;
+}
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      text-align: center;
+      padding: 1em;
+      cursor: pointer;
+      transition: transform 0.3s, background-color 0.3s;
+      width: 180px;
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem; /* consistent spacing between cards */
+  padding: 1rem;
+}
+    .card:hover {
+      transform: scale(1.03);
+    }
+    .card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .card.checked {
+      border: 3px solid #00ccff;
+      background: #d0f7ff;
+    }
+    .rarity {
+      font-size: 0.9em;
+      color: #777;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 20;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .container {
+  padding-left: 0;
+  padding-right: 1em;
+  padding-top: 1em;
+  transition: margin-left 0.3s ease; /* Ensure it's smooth */
+}
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 12px;
+    }
+    .modal-content img {
+      width: 100%;
+      border-radius: 12px;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .rarity {
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.rarity.Common {
+  color: #909090; 
+}
+
+.rarity.Uncommon {
+  color: #138a33; 
+}
+
+.rarity.Rare {
+  color: #9c27b0; 
+}
+
+
+.rarity.Legendary {
+  color: #ffb84d; 
+}
+
+.rarity.Mythic {
+  color: #b82e25; 
+}
+
+.modal-content.normal {
+  background-color: #c4c4c4;
+}
+.modal-content.fire {
+  background-color: #ffaa9e;
+}
+.modal-content.water {
+  background-color: #5db7d6;
+}
+.modal-content.grass {
+  background-color: #aee7ae;
+}
+.modal-content.electric {
+  background-color: #ffef78;
+}
+.modal-content.ice {
+  background-color: #c7f6ff;
+}
+.modal-content.fighting {
+  background-color: #d1a04b;
+}
+.modal-content.poison {
+  background-color: #ebaeff;
+}
+.modal-content.ground {
+  background-color: #c29e71;
+  color: rgb(78, 49, 27);
+}
+.modal-content.flying {
+  background-color: #afcfff;
+}
+.modal-content.psychic {
+  background-color: #8e6982;
+}
+.modal-content.bug {
+  background-color: #9dc49d;
+}
+.modal-content.rock {
+  background-color: #b7ac8f;
+}
+.modal-content.ghost {
+  background-color: #d7bdff;
+}
+.modal-content.dark {
+  background-color: #362f43;
+  color: rgb(244, 244, 244);
+}
+.modal-content.dragon {
+  background-color: #4a577e;
+}
+.modal-content.steel {
+  background-color: #4d5b78;
+}
+.modal-content.fairy {
+  background-color: #e480a8;
+  color: rgb(255, 216, 216);
+
+}
+.wishlist-star {
+  font-size: 1em;
+  color: #ffcc00;
+  margin-left: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+.wishlist-star:hover {
+  transform: scale(1.2);
+}
+
+.container.shifted {
+  margin-left: 300px; 
+  transition: margin-left 0.3s ease;
+}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="menu" onclick="toggleSidebar()">☰</div>
+    <h1>Animal Pokedex</h1>
+  </header>
+  <aside class="sidebar" id="sidebar">
+    <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+    <h2>Filters</h2>
+    <div class="filters">
+      <select id="filterMode" onchange="handleFilterModeChange(); toggleSidebar();">
+        <option value="all">Show All</option>
+        <option value="found">Show Found Only</option>
+        <option value="wishlist">Show Wishlist Only</option>
+      </select>
+      <select id="regionFilter" onchange="renderAnimals(); toggleSidebar();">
+        <option value="all">All Regions</option>
+      </select>
+    </div>
+  </aside>
+  <main class="container" id="animalList"></main>
+
+  <div id="infoModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    let wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+
+    let FoundOnly = false;
+let showWishlistOnly = false;
+
+    const animals = JSON.parse(localStorage.getItem("customAnimals") || "[]").concat([
+    { name: "Siberian Tiger", region: "Siberia", img: "siberiantiger.png", type: "Fire", hp: 80, atk: 95, desc: "The tiger is a fierce predator from Southeast Asia.", fact: "Tigers have striped skin, not just striped fur.", rarity: "Rare" },
+  { name: "Orangutan", region: "Sumatra", img: "ourangatang.jpg", type: "Grass", hp: 70, atk: 60, desc: "Highly intelligent primate living in rainforests.", fact: "Orangutans make tools and build nests daily.", rarity: "Uncommon" },
+  { name: "Sun Bear", region: "Borneo", img: "sunbear.png", type: "Normal", hp: 60, atk: 70, desc: "The smallest bear species.", fact: "Sun bears love honey!", rarity: "Common" },
+  { name: "Moon Bear", region: "Borneo", img: "moonbear.png", type: "Dark", hp: 60, atk: 70, desc: "The smallest bear species.", fact: "Sun bears love honey!", rarity: "Common" },
+  { name: "Axolotl", region: "Mexico", img: "axolotl.png", type: "Water", hp: 40, atk: 30, desc: "Amphibian known for its regeneration abilities.", fact: "Axolotls can regrow limbs.", rarity: "Rare" },
+  { name: "Snow Leopard", region: "Himalayas", img: "snowleopard.png", type: "Ice", hp: 70, atk: 85, desc: "Elusive mountain cat.", fact: "Perfectly adapted for cold climbs.", rarity: "Uncommon" },
+  { name: "Kangaroo", region: "Australia", img: "kangaroo.png", type: "Normal", hp: 65, atk: 60, desc: "Marsupial native to Australia.", fact: "They can hop 25 feet in a single bound.", rarity: "Common" },
+  { name: "Elephant", region: "Africa", img: "elephant.png", type: "Ground", hp: 120, atk: 70, desc: "Largest land animal.", fact: "Elephants have amazing memory.", rarity: "Rare" },
+  { name: "Sea Wolf", region: "Pacific North West", img: "seawolf.png", type: "Water", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Mythic" },
+  { name: "Grizzly Bear", region: "Pacific North West", img: "grizzly.png", type: "Fighting", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Rare" },
+  { name: "Black Bear", region: "Pacific North West", img: "blackbear.png", type: "Normal", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Common" },
+  { name: "Spirit Bear", region: "Pacific North West", img: "spirit.png", type: "Fairy", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Mythic" },
+  { name: "Sea Otter", region: "Pacific North West", img: "seaotter.png", type: "Water", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Common" },
+  { name: "River Otter", region: "Pacific North West", img: "riverotter.png", type: "Water", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Uncommon" },
+  { name: "Vancouver Island Ermine", region: "Pacific North West", img: "VIermine.png", type: "Ground", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Rare" },
+  { name: "Vancouver Island Marmot", region: "Pacific North West", img: "VImarmot.png", type: "Grass", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Rare" },
+  { name: "Orca", region: "Pacific North West", img: "Orca.png", type: "Water", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Legendary" },
+  { name: "Grey Whale", region: "Pacific North West", img: "greywhale.png", type: "Water", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Uncommon" },
+  { name: "Humpack Whale", region: "Pacific North West", img: "humpback.png", type: "Water", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Rare" },
+  { name: "Grey Wolf", region: "Pacific North West", img: "greywolf.png", type: "Dark", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Rare" },
+  { name: "Haida Ermine", region: "Pacific North West", img: "Hermine.png", type: "Water", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Rare" },
+  { name: "Dungenous Crab", region: "Pacific North West", img: "dungenouscrab.png", type: "Water", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Common" },
+  { name: "Tufted Puffin", region: "Pacific North West", img: "tuftedpuffin.png", type: "Flying", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Uncommon" },
+  { name: "Alaskan Moose", region: "Pacific North West", img: "alaskanmoose.png", type: "Ground", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Uncommon" },
+  { name: "Humbolds Flying Squirrel", region: "Pacific North West", img: "Hflyingsquirrel.png", type: "Flying", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Legendary" },
+  { name: "Douglas Squirrel", region: "Pacific North West", img: "douglassquirrel.png", type: "Grass", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Uncommon" },
+  { name: "Red Squirrel", region: "Pacific North West", img: "redsquirrel.png", type: "Ground", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Common" },
+  { name: "Coho Salmon", region: "Pacific North West", img: "coho.png", type: "Water", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Common" },
+  { name: "Great Blue Heron", region: "Pacific North West", img: "gbh.png", type: "Water", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Rare" },
+  { name: "Elk", region: "Pacific North West", img: "elk.png", type: "Grass", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Uncommon" },
+  { name: "Red-Tailed Hawk", region: "Pacific North West", img: "rthawk.png", type: "Flying", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Uncommon" },
+  { name: "Sea Lions", region: "Pacific North West", img: "sealion.png", type: "Water", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Uncommon" },
+  { name: "Belted kingfisher", region: "Pacific North West", img: "bkingfisher.png", type: "Flying", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Rare" },
+  { name: "Mountain Beaver", region: "Pacific North West", img: "mountainbeaver.png", type: "Ground", hp: 85, atk: 90, desc: "Pack hunter of the north.", fact: "Wolves communicate through howls.", rarity: "Rare" },
+  { name: "Panda", region: "China", img: "panda.png", type: "Grass", hp: 90, atk: 50, desc: "Bamboo-loving bear.", fact: "They spend 12 hours eating!", rarity: "Uncommon" },
+  { name: "Red Panda", region: "China", img: "redpanda.png", type: "Grass", hp: 90, atk: 50, desc: "Bamboo-loving bear.", fact: "They spend 12 hours eating!", rarity: "Uncommon" },
+  { name: "Komodo Dragon", region: "Komodo", img: "komodo.png", type: "Poison", hp: 110, atk: 100, desc: "Largest lizard in the world.", fact: "Its bite is venomous.", rarity: "Rare" },
+  { name: "Polar Bear", region: "Arctic", img: "polarbear.png", type: "Ice", hp: 120, atk: 90, desc: "Large bear native to Arctic Circle.", fact: "Their fur is transparent, not white.", rarity: "Rare" },
+  { name: "Jaguar", region: "Amazon", img: "jaguar.png", type: "Dark", hp: 100, atk: 110, desc: "Top predator of the Amazon.", fact: "They can crush skulls with their bite.", rarity: "Rare" },
+  { name: "Gibbon", region: "South-East Asia", img: "gibbon.png", type: "Dark", hp: 50, atk: 10, desc: "Top predator of the Amazon.", fact: "They can crush skulls with their bite.", rarity: "Rare" },
+  { name: "Golden Langur", region: "South-East Asia", img: "goldenlangur.png", type: "Electric", hp: 200, atk: 70, desc: "Top predator of the Amazon.", fact: "They can crush skulls with their bite.", rarity: "Legendary" },
+  { name: "Blue Penguin", region: "Antarctica", img: "bluepenguin.png", type: "Fairy", hp: 60, atk: 40, desc: "Flightless swimmer.", fact: "Some penguins mate for life.", rarity: "Common" },
+      { name: "Sloth", region: "Amazon", img: "sloth.png", type: "Normal", hp: 80, atk: 20, desc: "Very slow-moving mammal.", fact: "They can hold breath up to 40 minutes.", rarity: "Common" }
+    ]);
+
+    const allRegions = [...new Set(animals.map(a => a.region))];
+    const regionFilter = document.getElementById("regionFilter");
+    allRegions.forEach(region => {
+      const option = document.createElement("option");
+      option.value = region;
+      option.textContent = region;
+      regionFilter.appendChild(option);
+    });
+
+    let foundAnimals = JSON.parse(localStorage.getItem("foundAnimals") || "[]");
+    let showFoundOnly = false;
+
+    function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const container = document.querySelector(".container");
+  sidebar.classList.toggle("show");
+  container.classList.toggle("shifted");
+}
+
+    function toggleFound(name) {
+      if (foundAnimals.includes(name)) {
+        foundAnimals = foundAnimals.filter(n => n !== name);
+      } else {
+        foundAnimals.push(name);
+      }
+      localStorage.setItem("foundAnimals", JSON.stringify(foundAnimals));
+      renderAnimals();
+    }
+    
+    function handleFilterModeChange() {
+  const mode = document.getElementById("filterMode").value;
+  showFoundOnly = mode === "found";
+  showWishlistOnly = mode === "wishlist";
+  renderAnimals();
+}
+
+function toggleShowWishlist() {
+  if (showWishlistOnly) {
+    showWishlistOnly = false;
+  } else {
+    showWishlistOnly = true;
+    showFoundOnly = false;
+  }
+  updateFilterButtons();
+  renderAnimals();
+}
+
+    function toggleShowFound() {
+      showFoundOnly = !showFoundOnly;
+      document.getElementById("foundBtn").innerText = showFoundOnly ? "Show All" : "Show Found Only";
+      renderAnimals();
+    }
+
+    function openModal(animal) {
+  const modalBody = document.getElementById("modalBody");
+  const modalContent = document.querySelector(".modal-content");
+
+  // Remove old type classes
+  modalContent.className = "modal-content";
+
+  // Add the new type class
+  const typeClass = animal.type.toLowerCase();
+  modalContent.classList.add(typeClass);
+
+  modalBody.innerHTML = `
+    <h2>${animal.name}</h2>
+    <img src="${animal.img}" alt="${animal.name}" />
+    <p><strong>Type:</strong> ${animal.type}</p>
+    <p><strong>HP:</strong> ${animal.hp}</p>
+    <p><strong>Attack:</strong> ${animal.atk}</p>
+    <p><strong>Rarity:</strong> ${animal.rarity}</p>
+    <p>${animal.desc}</p>
+    <p><em>Fun Fact:</em> ${animal.fact}</p>
+  `;
+  document.getElementById("infoModal").style.display = "block";
+}
+const groupedAnimals = {};
+
+// Group animals by region
+animals.forEach(animal => {
+  if (!groupedAnimals[animal.region]) {
+    groupedAnimals[animal.region] = [];
+  }
+  groupedAnimals[animal.region].push(animal);
+});
+
+// Sort each region's animals alphabetically
+for (const region in groupedAnimals) {
+  groupedAnimals[region].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+    function closeModal() {
+      document.getElementById("infoModal").style.display = "none";
+    }
+    function toggleWishlist(name) {
+  if (wishlist.includes(name)) {
+    wishlist = wishlist.filter(n => n !== name);
+  } else {
+    wishlist.push(name);
+  }
+  localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  renderAnimals();
+}
+
+    function renderAnimals() {
+      const container = document.getElementById("animalList");
+      const filterVal = document.getElementById("regionFilter").value;
+      container.innerHTML = "";
+
+      animals.sort((a, b) => a.name.localeCompare(b.name));
+
+      const regions = [...new Set(animals.map(a => a.region))].sort();
+      regions.forEach(region => {
+        if (filterVal !== "all" && filterVal !== region) return;
+
+        const regionDiv = document.createElement("div");
+        regionDiv.className = "region-block";
+
+        const title = document.createElement("h2");
+        title.className = "region-title";
+        title.textContent = region;
+        regionDiv.appendChild(title);
+
+        let animalsInRegion = animals.filter(a => a.region === region);
+
+if (showFoundOnly) {
+  animalsInRegion = animalsInRegion.filter(a => foundAnimals.includes(a.name));
+}
+if (showWishlistOnly) {
+  animalsInRegion = animalsInRegion.filter(a => wishlist.includes(a.name));
+}
+        const foundInRegion = animalsInRegion.filter(a => foundAnimals.includes(a.name)).length;
+
+        const progress = document.createElement("div");
+        progress.className = "progress";
+        progress.innerHTML = `${foundInRegion} / ${animalsInRegion.length} found`;
+
+        const barOuter = document.createElement("div");
+        barOuter.className = "progress-bar";
+        const barInner = document.createElement("div");
+        barInner.className = "progress-bar-inner";
+        barInner.style.width = `${(foundInRegion / animalsInRegion.length) * 100}%`;
+        barOuter.appendChild(barInner);
+
+        regionDiv.appendChild(progress);
+        regionDiv.appendChild(barOuter);
+
+        const grid = document.createElement("div");
+        grid.className = "card-grid";
+
+        animalsInRegion.forEach(animal => {
+          const isFound = foundAnimals.includes(animal.name);
+const isWish = wishlist.includes(animal.name);
+
+const card = document.createElement("div");
+card.className = `card${isFound ? " checked" : ""}${isWish ? " wishlist" : ""}`;
+card.onclick = () => toggleFound(animal.name);
+card.ondblclick = () => openModal(animal);
+
+// Add a wishlist star icon or label
+card.innerHTML = `
+  <img src="${animal.img}" alt="${animal.name}" />
+ <h3>
+  ${animal.name}
+  <span class="wishlist-star" onclick="event.stopPropagation(); toggleWishlist('${animal.name}')">
+    ${isWish ? "★" : "☆"}
+  </span>
+</h3>
+  <p class="rarity">${animal.rarity}</p>
+ 
+`;
+          grid.appendChild(card);
+        });
+
+        if (grid.children.length > 0) {
+          regionDiv.appendChild(grid);
+          container.appendChild(regionDiv);
+        }
+      });
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById("infoModal");
+      if (event.target === modal) closeModal();
+    }
+    function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const container = document.querySelector(".container");
+  sidebar.classList.toggle("show");
+  container.classList.toggle("shifted");
+}
+
+    renderAnimals();
+    updateFilterButtons();
+  </script>
+</bo dy>
+</html>
