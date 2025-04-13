@@ -275,6 +275,48 @@
   transform: scale(1.2);
 }
 
+    .modal-content {
+  position: relative;
+  overflow: hidden; /* important so shimmer doesn’t leak out */
+  /* existing styles like background-color or class like .normal still apply */
+}
+
+/* shimmer layer */
+.modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+  95deg,
+  transparent 0%,
+  rgba(255, 255, 255, 0.05) 35%,
+  rgba(255, 255, 255, 0.3) 50%,
+  rgba(255, 255, 255, 0.05) 65%,
+  transparent 100%
+  );
+  animation: shimmer 4.5s infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Keep modal content above shimmer */
+.modal-content > * {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -120%;
+  }
+  100% {
+    left: 120%;
+  }
+}
+
 .container.shifted {
   margin-left: 300px; 
   transition: margin-left 0.3s ease;
