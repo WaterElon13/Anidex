@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
   <link rel="manifest" href="/manifest.json" />
 <link rel="icon" type="image/png" sizes="512x512" href="/anidex-logo.png" />
 <meta name="theme-color" content="#ffcb05" />
@@ -9,6 +10,30 @@
   <title>Anidex</title>
   <link rel="icon" type="image/x-icon" href="anidex.png">
   <style>
+    .search {
+      width: 93%;
+      display: flex;
+      align-items: center;
+      padding: 0.5em;
+      border-radius: 8px;
+      background: #007acc;
+
+    }
+
+    .search-input{
+      margin-left: 14px;
+      font-size: 1em;
+      color: #ffffff;
+      outline: none;
+      border: none;
+      background: transparent;
+    }
+
+    .search-input::placeholder{
+      color:#ffffff;
+      font-size: 1em;
+    }
+
     body {
       padding-top: 100px;
       margin: 0;
@@ -360,6 +385,14 @@
   </header>
   <aside class="sidebar" id="sidebar">
     <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+    <h2>Search</h2>
+    <form>
+      <div class="search">
+        <span class="search-icon material-symbols-outlined">search</span>
+        <input class="search-input" type="search" placeholder="Find an animal" >
+
+      </div>
+    </form>
     <h2>Filters</h2>
     <div class="filters">
       <select id="filterMode" onchange="handleFilterModeChange(); toggleSidebar();">
@@ -372,6 +405,8 @@
       </select>
     </div>
   </aside>
+
+  
   <main class="container" id="animalList"></main>
 
   <div id="infoModal" class="modal">
@@ -382,6 +417,66 @@
   </div>
 
   <script>
+
+    
+    
+
+const searchInput = document.querySelector('.search-input');
+const container = document.getElementById('animalList');
+
+// This function will update the visibility of regions and cards based on the search input
+searchInput.addEventListener('input', () => {
+  const query = searchInput.value.toLowerCase();  // Convert the input to lowercase for case-insensitive search
+
+  // Get all the region divs (you might already have these created dynamically)
+  const regions = container.querySelectorAll('.region-block');
+
+  regions.forEach(regionDiv => {
+    const regionTitle = regionDiv.querySelector('.region-title').textContent.toLowerCase();
+    
+    // Get all the animal cards within this region
+    const cards = regionDiv.querySelectorAll('.card');
+    let anyMatch = false;  // Flag to track if we find a match in the current region
+
+    cards.forEach(card => {
+      const cardText = card.textContent.toLowerCase();  // Get all text content inside the card
+
+      if (cardText.includes(query)) {
+        card.style.display = '';   // Show card
+        anyMatch = true;  // We found at least one match
+      } else {
+        card.style.display = 'none'; // Hide card
+      }
+    });
+
+    // If no cards match in the region, hide the region entirely
+    if (anyMatch) {
+      regionDiv.style.display = ''; // Show the region if there's a match
+    } else {
+      regionDiv.style.display = 'none'; // Hide the region if no matches
+    }
+  });
+});
+
+// Prevent tapping the animal cards from resetting the search
+container.addEventListener('click', (event) => {
+  // If the clicked element is an animal card, do nothing
+  if (event.target.classList.contains('card')) {
+    event.stopPropagation(); // Prevent the search reset from happening
+    event.preventDefault();  // In case the card is linked to something else (e.g., form submission)
+  }
+});
+
+let currentSearch = "";
+
+const searchInpu = document.querySelector('.search-input');
+searchInput.addEventListener('input', () => {
+  currentSearch = searchInput.value.toLowerCase();
+  renderAnimals(currentSearch);
+});
+
+// Your existing code for progress bar updates, rendering, etc.
+
     let wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
 
     let FoundOnly = false;
@@ -602,14 +697,14 @@ let showWishlistOnly = false;
 { name: "Zebra Longwing Butterfly", region: "South America", img: "zebralongwing.png", type: "Bug", hp: 28, atk: 18, desc: "The zebra longwing butterfly is easily recognized by its long black wings with white stripes.", fact: "It is the state butterfly of Florida.", rarity: "Common" },
       { name: "European Hornet", region: "Europe", img: "europeanhornet.png", type: "Bug", hp: 40, atk: 75, desc: "The European hornet is a large, aggressive wasp species found across Europe and parts of Asia.", fact: "Despite their fearsome reputation, they help control pest insect populations.", rarity: "Uncommon" },
 { name: "Paper Wasp", region: "North America", img: "paperwasp.png", type: "Bug", hp: 30, atk: 55, desc: "Paper wasps build umbrella-shaped nests from paper-like material and defend them fiercely.", fact: "Their sting is painful but not as dangerous as hornets or bees.", rarity: "Common" },
-{ name: "Asian Giant Hornet", region: "Southeast Asia", img: "asiangiant.png", type: "Bug", hp: 65, atk: 90, desc: "Known as the 'murder hornet,' this giant hornet can devastate bee populations.", fact: "Their venom contains neurotoxins that can be lethal in high doses.", rarity: "Rare" },
+{ name: "Asian Giant Hornet", region: "South-East Asia", img: "asiangiant.png", type: "Bug", hp: 65, atk: 90, desc: "Known as the 'murder hornet,' this giant hornet can devastate bee populations.", fact: "Their venom contains neurotoxins that can be lethal in high doses.", rarity: "Rare" },
 { name: "Bald-Faced Hornet", region: "North America", img: "baldfacedhornet.png", type: "Bug", hp: 35, atk: 70, desc: "Bald-faced hornets are black and white wasps that defend their nests aggressively.", fact: "Despite the name, they're more closely related to yellowjackets than true hornets.", rarity: "Uncommon" },
 { name: "Western Honeybee", region: "North America", img: "honeybee.png", type: "Bug", hp: 30, atk: 25, desc: "Honeybees are vital pollinators known for producing honey and wax.", fact: "A single honeybee makes about 1/12th of a teaspoon of honey in its lifetime.", rarity: "Common" },
 { name: "Carpenter Bee", region: "North America", img: "carpenterbee.png", type: "Bug", hp: 35, atk: 30, desc: "Carpenter bees drill into wood to lay their eggs, often damaging buildings.", fact: "Unlike bumblebees, carpenter bees are solitary and don't form large colonies.", rarity: "Common" },
 { name: "Bumblebee", region: "North America", img: "bumblebee.png", type: "Bug", hp: 40, atk: 20, desc: "Bumblebees are large, fuzzy bees essential for pollinating many types of crops.", fact: "They can regulate their body temperature to fly in cooler weather.", rarity: "Common" },
 { name: "Orchid Bee", region: "Central America", img: "orchidbee.png", type: "Bug", hp: 28, atk: 25, desc: "Orchid bees are brightly colored bees known for their role in pollinating tropical orchids.", fact: "They collect and store perfumes from flowers to attract mates.", rarity: "Uncommon" },
 { name: "Saharan Paper Wasp", region: "Sahara", img: "saharanpaperwasp.png", type: "Bug", hp: 32, atk: 50, desc: "These hardy wasps thrive in extreme desert temperatures and build small mud nests.", fact: "They are extremely heat-tolerant, surviving conditions that kill other insects.", rarity: "Rare" },
-      { name: "Goliath Beetle", region: "Central Africa", img: "goliathbeetle.png", type: "Bug", hp: 85, atk: 60, desc: "One of the largest insects on Earth by weight, the Goliath Beetle is a true armored tank of the jungle.", fact: "It can weigh over 100 grams — heavier than some birds.", rarity: "Rare" },
+      { name: "Goliath Beetle", region: "Africa", img: "goliathbeetle.png", type: "Bug", hp: 85, atk: 60, desc: "One of the largest insects on Earth by weight, the Goliath Beetle is a true armored tank of the jungle.", fact: "It can weigh over 100 grams — heavier than some birds.", rarity: "Rare" },
 { name: "Hercules Beetle", region: "South America", img: "herculesbeetle.png", type: "Bug", hp: 90, atk: 70, desc: "This massive beetle uses its long horn to battle rivals and dig through rotting logs.", fact: "It can lift over 80 times its body weight.", rarity: "Rare" },
 { name: "Stag Beetle", region: "Europe", img: "stagbeetle.png", type: "Bug", hp: 55, atk: 45, desc: "The males of this species have huge jaws used in territorial fights.", fact: "Despite their fierce look, they're harmless to humans.", rarity: "Uncommon" },
 { name: "Rainbow Stag Beetle", region: "South-East Asia", img: "rainbowstag.png", type: "Bug", hp: 48, atk: 40, desc: "This dazzling beetle’s metallic shell glimmers in greens and purples.", fact: "It’s highly prized by collectors due to its vibrant colors.", rarity: "Rare" },
@@ -619,11 +714,13 @@ let showWishlistOnly = false;
 { name: "Elephant Beetle", region: "Central America", img: "elephantbeetle.png", type: "Bug", hp: 75, atk: 60, desc: "Massive and horned, the elephant beetle looks prehistoric.", fact: "Despite their size, they're capable of flight.", rarity: "Rare" },
 { name: "Click Beetle", region: "North America", img: "clickbeetle.png", type: "Bug", hp: 25, atk: 15, desc: "These beetles launch into the air with a loud click when threatened.", fact: "They flip over when stuck on their backs using the 'click' mechanism.", rarity: "Common" },
       { name: "Honey Badger", region: "Sahara", img: "honeybadger.png", type: "Beast", hp: 80, atk: 65, desc: "Fearless and relentless, the honey badger takes on snakes, scorpions, and even lions.", fact: "It can survive cobra venom and keeps fighting after getting bit.", rarity: "Rare" },
-{ name: "Blue Sea Star", region: "Pacific Ocean", img: "blueseastar.png", type: "Aquatic", hp: 30, atk: 10, desc: "The Blue Sea Star is a striking marine creature found in shallow tropical waters.", fact: "It can drop arms to escape predators and regrow them later.", rarity: "Uncommon" },
+{ name: "Blue Sea Star", region: "South Pacific", img: "blueseastar.png", type: "Aquatic", hp: 30, atk: 10, desc: "The Blue Sea Star is a striking marine creature found in shallow tropical waters.", fact: "It can drop arms to escape predators and regrow them later.", rarity: "Uncommon" },
 { name: "Banana Slug", region: "Pacific North West", img: "bananaslug.png", type: "Bug", hp: 18, atk: 8, desc: "This bright yellow slug helps decompose forest matter, sliding silently through redwood roots.", fact: "It can grow up to 10 inches long.", rarity: "Uncommon" },
 { name: "Giant Anteater", region: "South America", img: "giantanteater.png", type: "Beast", hp: 70, atk: 30, desc: "This long-snouted mammal tears into anthills with powerful claws, devouring thousands of insects.", fact: "Its tongue can flick 150 times per minute.", rarity: "Uncommon" },
      
     ]);
+
+
 
     const allRegions = [...new Set(animals.map(a => a.region))];
     const regionFilter = document.getElementById("regionFilter");
@@ -729,82 +826,99 @@ for (const region in groupedAnimals) {
   renderAnimals();
 }
 
-    function renderAnimals() {
-      const container = document.getElementById("animalList");
-      const filterVal = document.getElementById("regionFilter").value;
-      container.innerHTML = "";
 
-      animals.sort((a, b) => a.name.localeCompare(b.name));
 
-      const regions = [...new Set(animals.map(a => a.region))].sort();
-      regions.forEach(region => {
-        if (filterVal !== "all" && filterVal !== region) return;
 
-        const regionDiv = document.createElement("div");
-        regionDiv.className = "region-block";
+    
+function renderAnimals(searchQuery = "") {
+  const container = document.getElementById("animalList");
+  const filterVal = document.getElementById("regionFilter").value;
+  container.innerHTML = "";
 
-        const title = document.createElement("h2");
-        title.className = "region-title";
-        title.textContent = region;
-        regionDiv.appendChild(title);
+  animals.sort((a, b) => a.name.localeCompare(b.name));
 
-        let animalsInRegion = animals.filter(a => a.region === region);
+  const regions = [...new Set(animals.map(a => a.region))].sort();
+  regions.forEach(region => {
+    if (filterVal !== "all" && filterVal !== region) return;
 
-if (showFoundOnly) {
-  animalsInRegion = animalsInRegion.filter(a => foundAnimals.includes(a.name));
-}
-if (showWishlistOnly) {
-  animalsInRegion = animalsInRegion.filter(a => wishlist.includes(a.name));
-}
-        const foundInRegion = animalsInRegion.filter(a => foundAnimals.includes(a.name)).length;
+    const regionDiv = document.createElement("div");
+    regionDiv.className = "region-block";
 
-        const progress = document.createElement("div");
-        progress.className = "progress";
-        progress.innerHTML = `${foundInRegion} / ${animalsInRegion.length} found`;
+    const title = document.createElement("h2");
+    title.className = "region-title";
+    title.textContent = region;
+    regionDiv.appendChild(title);
 
-        const barOuter = document.createElement("div");
-        barOuter.className = "progress-bar";
-        const barInner = document.createElement("div");
-        barInner.className = "progress-bar-inner";
-        barInner.style.width = `${(foundInRegion / animalsInRegion.length) * 100}%`;
-        barOuter.appendChild(barInner);
+    let animalsInRegion = animals.filter(a => a.region === region);
 
-        regionDiv.appendChild(progress);
-        regionDiv.appendChild(barOuter);
-
-        const grid = document.createElement("div");
-        grid.className = "card-grid";
-
-        animalsInRegion.forEach(animal => {
-          const isFound = foundAnimals.includes(animal.name);
-const isWish = wishlist.includes(animal.name);
-
-const card = document.createElement("div");
-card.className = `card${isFound ? " checked" : ""}${isWish ? " wishlist" : ""}`;
-card.onclick = () => toggleFound(animal.name);
-card.ondblclick = () => openModal(animal);
-
-// Add a wishlist star icon or label
-card.innerHTML = `
-  <img src="${animal.img}" alt="${animal.name}" />
- <h3>
-  ${animal.name}
-  <span class="wishlist-star" onclick="event.stopPropagation(); toggleWishlist('${animal.name}')">
-    ${isWish ? "★" : "☆"}
-  </span>
-</h3>
-  <p class="rarity ${animal.rarity}">${animal.rarity}</p>
- 
-`;
-          grid.appendChild(card);
-        });
-
-        if (grid.children.length > 0) {
-          regionDiv.appendChild(grid);
-          container.appendChild(regionDiv);
-        }
-      });
+    // Apply found/wishlist filters
+    if (showFoundOnly) {
+      animalsInRegion = animalsInRegion.filter(a => foundAnimals.includes(a.name));
     }
+    if (showWishlistOnly) {
+      animalsInRegion = animalsInRegion.filter(a => wishlist.includes(a.name));
+    }
+
+    // Apply search filter here
+    if (searchQuery) {
+      animalsInRegion = animalsInRegion.filter(a =>
+        a.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Skip regions with no matching animals
+    if (animalsInRegion.length === 0) return;
+
+    const foundInRegion = animals.filter(a => a.region === region && foundAnimals.includes(a.name)).length;
+    const totalInRegion = animals.filter(a => a.region === region).length;
+
+    const progress = document.createElement("div");
+    progress.className = "progress";
+    progress.innerHTML = `${foundInRegion} / ${totalInRegion} found`;
+
+    const barOuter = document.createElement("div");
+    barOuter.className = "progress-bar";
+    const barInner = document.createElement("div");
+    barInner.className = "progress-bar-inner";
+    barInner.style.width = `${(foundInRegion / totalInRegion) * 100}%`;
+    barOuter.appendChild(barInner);
+
+    regionDiv.appendChild(progress);
+    regionDiv.appendChild(barOuter);
+
+    const grid = document.createElement("div");
+    grid.className = "card-grid";
+
+    animalsInRegion.forEach(animal => {
+      const isFound = foundAnimals.includes(animal.name);
+      const isWish = wishlist.includes(animal.name);
+
+      const card = document.createElement("div");
+      card.className = `card${isFound ? " checked" : ""}${isWish ? " wishlist" : ""}`;
+      card.onclick = (e) => {
+        e.stopPropagation(); // Prevent bubbling up
+        toggleFound(animal.name);
+        renderAnimals(currentSearch); // Maintain current search
+      };
+      card.ondblclick = () => openModal(animal);
+
+      card.innerHTML = `
+        <img src="${animal.img}" alt="${animal.name}" />
+        <h3>
+          ${animal.name}
+          <span class="wishlist-star" onclick="event.stopPropagation(); toggleWishlist('${animal.name}'); renderAnimals(currentSearch);">
+            ${isWish ? "★" : "☆"}
+          </span>
+        </h3>
+        <p class="rarity ${animal.rarity}">${animal.rarity}</p>
+      `;
+      grid.appendChild(card);
+    });
+
+    regionDiv.appendChild(grid);
+    container.appendChild(regionDiv);
+  });
+}
 
     window.onclick = function(event) {
       const modal = document.getElementById("infoModal");
@@ -819,6 +933,12 @@ card.innerHTML = `
 
     renderAnimals();
     updateFilterButtons();
+
+    
+    
+
+   
+
   </script>
 </body>
 </html>
