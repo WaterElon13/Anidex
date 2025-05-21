@@ -157,6 +157,34 @@
       flex-direction: column;
       justify-content: space-between;
     }
+
+
+    .total-progress-container {
+  margin-top: 20px;
+  padding: 10px;
+  display: block;
+  
+}
+
+.total-progress-container .progress {
+  font-weight: bold;
+  margin-bottom: 6px;
+  text-align: center;
+  font-size: 16px;
+  margin-left: 1em;
+}
+
+.total-progress-container .progress-bar {
+  height: 20px;
+  overflow: hidden;
+  margin-left: 0.5em;
+}
+
+.total-progress-container .progress-bar-inner {
+  transition: width 0.4s ease-in-out;
+  
+}
+
     .card-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -405,6 +433,8 @@
       </select>
     </div>
   </aside>
+
+  
 
   
   <main class="container" id="animalList"></main>
@@ -838,6 +868,36 @@ function renderAnimals(searchQuery = "") {
   animals.sort((a, b) => a.name.localeCompare(b.name));
 
   const regions = [...new Set(animals.map(a => a.region))].sort();
+
+// Calculate total found and total animals
+const totalFound = animals.filter(a => foundAnimals.includes(a.name)).length;
+const totalAnimals = animals.length;
+
+// Create a container for total progress
+const totalProgressContainer = document.createElement("div");
+totalProgressContainer.className = "total-progress-container";
+
+// Add label
+const totalLabel = document.createElement("div");
+totalLabel.className = "progress";
+totalLabel.textContent = `${totalFound} / ${totalAnimals} Total Animals Found`;
+totalProgressContainer.appendChild(totalLabel);
+
+// Create total progress bar
+const totalBarOuter = document.createElement("div");
+totalBarOuter.className = "progress-bar";
+const totalBarInner = document.createElement("div");
+totalBarInner.className = "progress-bar-inner";
+totalBarInner.style.width = `${(totalFound / totalAnimals) * 100}%`;
+totalBarOuter.appendChild(totalBarInner);
+
+// Append progress bar to container
+totalProgressContainer.appendChild(totalBarOuter);
+
+// Append to animalList before region blocks
+container.appendChild(totalProgressContainer);
+
+
   regions.forEach(region => {
     if (filterVal !== "all" && filterVal !== region) return;
 
@@ -865,6 +925,8 @@ function renderAnimals(searchQuery = "") {
         a.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
+
+
 
     // Skip regions with no matching animals
     if (animalsInRegion.length === 0) return;
